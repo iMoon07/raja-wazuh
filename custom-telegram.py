@@ -1,15 +1,12 @@
 #!/usr/bin/env python3
-# Credit By ./M00NL16HT
-# Github https://github.com/iMoon07
 
 import sys
 import json
 import requests
 
-# Telegram Chat ID "-XXXXXXX"
-CHAT_ID = "-4696975416"
+# Destination Groups Telegram you can put "-4696975416"
+CHAT_ID = "<chat id groups"
 
-# Validation Argument
 if len(sys.argv) < 3:
     print("Usage: python3 script.py <alert-file> <unused> <webhook-url>")
     sys.exit(1)
@@ -24,7 +21,7 @@ except Exception as e:
     print(f"[!] Failed to load alert file: {e}")
     sys.exit(1)
 
-# Extract data wazuh alert_json
+# Extract data with get() to avoid KeyError
 rule = alert_json.get('rule', {})
 agent = alert_json.get('agent', {})
 data = alert_json.get('data', {})
@@ -39,7 +36,6 @@ dstuser = data.get('dstuser', "N/A")
 full_log = alert_json.get('full_log', "N/A")
 rule_groups = ", ".join(rule.get('groups', [])) or "N/A"
 
-# Convert Wazuh Alert Level Severity
 def get_severity(level):
     try: level = int(level)
     except: return "Unknown"
@@ -51,7 +47,6 @@ def get_severity(level):
 
 severity = get_severity(alert_level)
 
-# Telegram Alert Message
 message = (
     f"🚨 Beruang Cyber Alert 🚨\n"
     f"🆔 Rule ID: `{rule_id}`\n"
@@ -67,7 +62,6 @@ message = (
     f"\n  🐻 Beruang Cyber Monitoring 🌐"
 )
 
-# Send Alert To Telegram
 msg_data = {
     'chat_id': CHAT_ID,
     'text': message,
@@ -81,6 +75,3 @@ try:
     r.raise_for_status()
 except requests.exceptions.RequestException as e:
     print(f"[!] Error sending Telegram alert: {e}")
-requests.post(hook_url, headers=headers, data=json.dumps(msg_data))
-
-sys.exit(0)
